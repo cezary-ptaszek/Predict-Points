@@ -1,0 +1,1 @@
+nie mogem skorzystaz api, poniewazz
