@@ -1,30 +1,43 @@
 import requests
 import re
-from urllib.parse import urlparse
-from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import time
+from array import *
 
+
+def open_link(url):
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+    r = requests.get(url, headers=headers)
+    return BeautifulSoup(r.text, "html.parser")
+
+links = []
+upvotes = []
 
 url = 'https://stackoverflow.com/questions/tagged/java?tab=newest&page=107917&pagesize=15'
-headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-r = requests.get(url, headers=headers)
-soup = BeautifulSoup(r.text, "html.parser")
 
-tab = []
-
-for text in soup.find_all('a'):
+for text in open_link(url).find_all('a'):
     temp = text.get('href')
     if isinstance(temp, str):
         if re.match(r'^\/questions\/\d+\/.*',temp):
-            tab.append(temp)
+            links.append('https://stackoverflow.com' + temp)
 
-print(tab)
+# print(links)
 
-    # links = re.match(^\/questions\/\d+\/.*)
+# pierwsze 4 odpowiedzi
+for t in links:
+    soup = open_link(t)
+    print(t)
+    i = 0
+    for text in soup.find_all('div'):
+        temp = text.get('data-value')
+        if i > 1 and isinstance(temp, str):
+            upvotes.append(temp)
+        if i==6:
+            break
+        if isinstance(temp, str):
+            i+=1
+    time.sleep(1)
+
+print(upvotes)
 
 
-# base = 'https://stackoverflow.com'
-# for i, link in enumerate(links):
-#     if not urlparse(link).netloc:
-#         link_with_base = base + '/' + link
-#         links[i] = link_with_base
